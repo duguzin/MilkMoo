@@ -71,6 +71,23 @@
       border-radius: 16px 16px 0 0;
     }
 
+    /* ----------------- MASCOTE ----------------- */
+  .mascote { 
+    width: 92px;
+    border-radius: 20px;
+    border: 5px solid var(--mm-branco); 
+    box-shadow: 6px 6px 0 rgba(0,0,0,0.15), 0 8px 26px rgba(0,0,0,0.12);
+    position: absolute;
+    left: 14px;
+    top: 6px;
+    z-index: 30; 
+    animation: mascBlink 3.8s steps(2) infinite; 
+    cursor: pointer;
+  }
+  
+  @keyframes mascBlink { 0% { transform: translateY(0) } 15% { transform: translateY(-3px) rotate(-2deg) } 40% { transform: translateY(0) } 60% { transform: translateY(-2px) } 100% { transform: translateY(0)} }
+
+
     .hora-container {
     display: inline-flex;
     align-items: center;
@@ -115,6 +132,9 @@
       transition: all 0.3s ease;
       height: 100%;
       cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .produto-card:hover {
@@ -124,14 +144,42 @@
     }
 
     .produto-card.selected {
-      /* background: linear-gradient(180deg, rgba(244,175,194,0.15), rgba(228,108,168,0.1)); */
       border-color: var(--mm-rosa-vibrante);
       box-shadow: 8px 8px 0 rgba(228,108,168,0.2);
-      color: var(--mm-rosa-vibrante);
     }
     
     .produto-nome.selected {
         color: var(--mm-rosa-vibrante);
+    }
+
+    .produto-imagem {
+      width: 100%;
+      height: 200px;
+      border-radius: 20px;
+      border: 3px solid var(--mm-preto);
+      overflow: hidden;
+      margin-bottom: 15px;
+      background: var(--mm-branco);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.1);
+    }
+
+    .produto-imagem img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .produto-card:hover .produto-imagem img {
+      transform: scale(1.05);
+    }
+
+    .produto-card.selected .produto-imagem {
+      border-color: var(--mm-rosa-vibrante);
+      box-shadow: 4px 4px 0 rgba(228,108,168,0.2);
     }
 
     .produto-icone {
@@ -142,17 +190,22 @@
     }
 
     .produto-nome {
-      font-size: 1.4rem;
+      font-size: 1.3rem;
       font-weight: 800;
       margin-bottom: 10px;
       text-align: center;
+      min-height: 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .produto-desc {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: #666;
       text-align: center;
       margin-bottom: 15px;
+      min-height: 2.5rem;
     }
 
     .produto-preco {
@@ -161,6 +214,16 @@
       color: var(--verde-sucesso);
       text-align: center;
       margin-bottom: 15px;
+    }
+
+    .produto-badge {
+      background: var(--mm-preto);
+      color: var(--mm-branco);
+      padding: 5px 12px;
+      border-radius: 15px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      margin-top: auto;
     }
 
     /* Painel da Senha */
@@ -279,20 +342,57 @@
       animation: pulse 2s infinite;
     }
 
+    /* ----------------- PARTICLES (gotas) ----------------- */
+    #particlesCanvas { 
+      position: fixed; 
+      left: 0; 
+      top: 0; 
+      width: 100%; 
+      height: 100%; 
+      z-index:15; 
+      pointer-events: none
+    }
+
     /* Responsivo */
     @media (max-width: 768px) {
       h1 { font-size: 2rem; }
       .senha-gerada { font-size: 2.5rem; }
-      .produto-nome { font-size: 1.2rem; }
+      .produto-nome { font-size: 1.1rem; }
+      .produto-imagem {
+        width: 100px;
+        height: 100px;
+      }
+
+      .mascote {
+      display: none;
+    }
+    }
+
+    @media (max-width: 576px) {
+      .produto-imagem {
+        width: 80px;
+        height: 80px;
+      }
+      .produto-nome {
+        font-size: 1rem;
+      }
+      .produto-desc {
+        font-size: 0.8rem;
+      }
     }
   </style>
 </head>
 <body>
 
+  <canvas id="particlesCanvas" aria-hidden="true"></canvas>
+
+  <!-- MASCOTE -->
+  <img src="../Imagens/Mascote/mascote.png" alt="Mascote MilkMoo" class="mascote" id="mascote">
+
   <!-- CABEÇALHO ESTILIZADO COMO CARD -->
   <div class="header-card">
     <div class="titulo-container">
-      <h1>🥛 MilkMoo – Painel de Atendimento</h1>
+      <h1>🥛 MilkMoo – Faça seu Pedido</h1>
       <div class="hora-container">
         <i class="fa-solid fa-clock"></i>
         <div id="hora" aria-live="polite"></div>
@@ -311,93 +411,81 @@
         </h2> -->
       </div>
       
-      <!-- Produto 1 -->
+      <!-- Produto 1: Milkshake Penélope -->
       <div class="col-md-4 col-sm-6 mb-3">
         <div class="produto-card" onclick="selecionarProduto('A')" id="produtoA">
-          <div class="produto-icone">
-            <i class="fa-solid fa-glass-whiskey"></i>
+          <div class="produto-imagem">
+            <img src="../Imagens/Produtos/produto-1.png" alt="Milkshake Penélope">
           </div>
-          <div class="produto-nome">Milkshake Tradicional</div>
-          <div class="produto-desc">Cremoso e saboroso, com chantilly</div>
+          <div class="produto-nome">Milkshake Penélope</div>
+          <div class="produto-desc">Cremoso e saboroso, com chocolate sensação</div>
           <div class="produto-preco">R$ 12,90</div>
-          <div class="text-center">
-            <span class="badge bg-dark">Tipo A</span>
-          </div>
+          <div class="produto-badge">Tipo A</div>
         </div>
       </div>
       
-      <!-- Produto 2 -->
+      <!-- Produto 2: Milkshake Carmela -->
       <div class="col-md-4 col-sm-6 mb-3">
         <div class="produto-card" onclick="selecionarProduto('B')" id="produtoB">
-          <div class="produto-icone">
-            <i class="fa-solid fa-crown"></i>
+          <div class="produto-imagem">
+            <img src="../Imagens/Produtos/produto-2.jpg" alt="Milkshake Carmela">
           </div>
-          <div class="produto-nome">Milkshake Premium</div>
-          <div class="produto-desc">Com topping especial e cookies</div>
+          <div class="produto-nome">Milkshake Carmela</div>
+          <div class="produto-desc">Com topping especial, feito com leite moça</div>
           <div class="produto-preco">R$ 18,90</div>
-          <div class="text-center">
-            <span class="badge bg-dark">Tipo B</span>
-          </div>
+          <div class="produto-badge">Tipo B</div>
         </div>
       </div>
       
-      <!-- Produto 3 -->
+      <!-- Produto 3: Milkshake Caribenha -->
       <div class="col-md-4 col-sm-6 mb-3">
         <div class="produto-card" onclick="selecionarProduto('C')" id="produtoC">
-          <div class="produto-icone">
-            <i class="fa-solid fa-bowl-food"></i>
+          <div class="produto-imagem">
+            <img src="../Imagens/Produtos/produto-3.jpg" alt="Milkshake Caribenha">
           </div>
-          <div class="produto-nome">Açaí Cremoso</div>
-          <div class="produto-desc">Com granola e frutas frescas</div>
+          <div class="produto-nome">Milshake Caribenha</div>
+          <div class="produto-desc">Cremoso com frutas, com chocolate caribe</div>
           <div class="produto-preco">R$ 15,50</div>
-          <div class="text-center">
-            <span class="badge bg-dark">Tipo C</span>
-          </div>
+          <div class="produto-badge">Tipo C</div>
         </div>
       </div>
       
-      <!-- Produto 4 -->
+      <!-- Produto 4: Milshake Rainha -->
       <div class="col-md-4 col-sm-6 mb-3">
         <div class="produto-card" onclick="selecionarProduto('D')" id="produtoD">
-          <div class="produto-icone">
-            <i class="fa-solid fa-ice-cream"></i>
+          <div class="produto-imagem">
+            <img src="../Imagens/Produtos/produto-4.jpg" alt="Milshake Rainha">
           </div>
-          <div class="produto-nome">Picolé Artesanal</div>
-          <div class="produto-desc">Feito com frutas da estação</div>
-          <div class="produto-preco">R$ 7,90</div>
-          <div class="text-center">
-            <span class="badge bg-dark">Tipo D</span>
-          </div>
+          <div class="produto-nome">Milshake Rainha</div>
+          <div class="produto-desc">Cremoso lançamento, com alpino</div>
+          <div class="produto-preco">R$ 17,90</div>
+          <div class="produto-badge">Tipo D</div>
         </div>
       </div>
       
-      <!-- Produto 5 -->
+      <!-- Produto 5: Sobremesa Especial -->
       <div class="col-md-4 col-sm-6 mb-3">
         <div class="produto-card" onclick="selecionarProduto('E')" id="produtoE">
-          <div class="produto-icone">
-            <i class="fa-solid fa-cake-candles"></i>
+          <div class="produto-imagem">
+            <img src="../Imagens/Produtos/produto-5.jpg" alt="Sobremesa Especial">
           </div>
           <div class="produto-nome">Sobremesa Especial</div>
-          <div class="produto-desc">Brownie com sorvete e calda</div>
-          <div class="produto-preco">R$ 22,90</div>
-          <div class="text-center">
-            <span class="badge bg-dark">Tipo E</span>
-          </div>
+          <div class="produto-desc">Milkshake Estrela e Pérola</div>
+          <div class="produto-preco">R$ 32,90</div>
+          <div class="produto-badge">Tipo E</div>
         </div>
       </div>
       
-      <!-- Produto 6: Personalizado -->
+      <!-- Produto 6: Combo Personalizado -->
       <div class="col-md-4 col-sm-6 mb-3">
         <div class="produto-card" onclick="selecionarProduto('F')" id="produtoF">
-          <div class="produto-icone">
-            <i class="fa-solid fa-star"></i>
+          <div class="produto-imagem">
+            <img src="../Imagens/Produtos/produto-6.jpg" alt="Combo Personalizado">
           </div>
           <div class="produto-nome">Combo Personalizado</div>
-          <div class="produto-desc">Monte seu próprio combo</div>
+          <div class="produto-desc">Monte seu próprio combo!</div>
           <div class="produto-preco">A partir de R$ 25,90</div>
-          <div class="text-center">
-            <span class="badge bg-dark">Tipo F</span>
-          </div>
+          <div class="produto-badge">Tipo F</div>
         </div>
       </div>
     </div>
@@ -413,7 +501,7 @@
           <div class="senha-gerada" id="senhaDisplay">---</div>
           
           <div class="text-center mb-3">
-            <span class="badge bg-dark fs-6" id="produtoDisplay">Nenhum produto selecionado</span>
+            <span class="badge bg-dark fs-6 p-2" id="produtoDisplay">Nenhum produto selecionado</span>
           </div>
           
           <div class="d-grid gap-2">
@@ -480,7 +568,7 @@
         <div class="alert alert-dark border-3 border-dark" style="border-radius: 20px;">
           <h5 class="alert-heading fw-bold"><i class="fa-solid fa-lightbulb"></i> Como funciona:</h5>
           <ol class="mb-0">
-            <li><strong>Selecione</strong> um produto acima</li>
+            <li><strong>Selecione</strong> um produto acima (clique na imagem)</li>
             <li><strong>Clique em "Gerar Minha Senha"</strong></li>
             <li><strong>Acompanhe</strong> sua posição na fila ao lado</li>
             <li><strong>Quando sua senha for chamada</strong>, dirija-se ao balcão</li>
@@ -576,6 +664,18 @@
                 </div>
               </div>
             </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour">
+                  Posso trocar de produto?
+                </button>
+              </h2>
+              <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#accordionAjuda">
+                <div class="accordion-body">
+                  Sim, basta clicar em "Limpar Seleção" e escolher outro produto antes de gerar a senha.
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -593,12 +693,12 @@
 
     // Mapeamento de produtos
     const produtosMap = {
-      'A': { nome: 'Milkshake Tradicional', icone: 'fa-glass-whiskey', preco: 'R$ 12,90' },
-      'B': { nome: 'Milkshake Premium', icone: 'fa-crown', preco: 'R$ 18,90' },
-      'C': { nome: 'Açaí Cremoso', icone: 'fa-bowl-food', preco: 'R$ 15,50' },
-      'D': { nome: 'Picolé Artesanal', icone: 'fa-ice-cream', preco: 'R$ 7,90' },
-      'E': { nome: 'Sobremesa Especial', icone: 'fa-cake-candles', preco: 'R$ 22,90' },
-      'F': { nome: 'Combo Personalizado', icone: 'fa-star', preco: 'A partir de R$ 25,90' }
+      'A': { nome: 'Milkshake Penélope', preco: 'R$ 12,90' },
+      'B': { nome: 'Milkshake Carmela', preco: 'R$ 18,90' },
+      'C': { nome: 'Milkshake Caribenha', preco: 'R$ 15,50' },
+      'D': { nome: '"Milshake Rainha', preco: 'R$ 17,90' },
+      'E': { nome: 'Sobremesa Especial', preco: 'R$ 32,90' },
+      'F': { nome: 'Combo Personalizado', preco: 'A partir de R$ 25,90' }
     };
 
     // Inicialização
@@ -606,17 +706,39 @@
       atualizarHora();
       iniciarMonitoramento();
       verificarSenhaAtiva();
+      preloadImages();
     });
+
+    // Função para pré-carregar imagens
+    function preloadImages() {
+      const images = [
+        '../Imagens/Produtos/produto-1.png',
+        '../Imagens/Produtos/produto-2.jpg',
+        '../Imagens/Produtos/produto-3.jpg',
+        '../Imagens/Produtos/produto-4.jpg',
+        '../Imagens/Produtos/produto-5.jpg',
+        '../Imagens/Produtos/produto-6.jpg'
+      ];
+      
+      images.forEach(src => {
+        const img = new Image();
+        img.src = src;
+      });
+    }
 
     // Função para selecionar produto
     function selecionarProduto(tipo) {
       // Remove seleção anterior
       document.querySelectorAll('.produto-card').forEach(card => {
         card.classList.remove('selected');
+        card.querySelector('.produto-nome').classList.remove('selected');
       });
       
       // Adiciona seleção atual
-      document.getElementById(`produto${tipo}`).classList.add('selected');
+      const produtoCard = document.getElementById(`produto${tipo}`);
+      produtoCard.classList.add('selected');
+      produtoCard.querySelector('.produto-nome').classList.add('selected');
+      
       produtoSelecionado = tipo;
       
       // Atualiza display
@@ -624,6 +746,12 @@
       
       // Habilita botão de gerar senha
       document.getElementById('btnGerarSenha').disabled = false;
+      
+      // Animação de seleção
+      produtoCard.style.transform = 'scale(0.95)';
+      setTimeout(() => {
+        produtoCard.style.transform = 'scale(1)';
+      }, 150);
       
       // Play sound
       playSound('select');
@@ -653,8 +781,15 @@
       localStorage.setItem('milkmoo_nova_senha', JSON.stringify(dadosSenha));
       
       // Atualiza interface
-      document.getElementById('senhaDisplay').textContent = minhaSenha;
-      document.getElementById('senhaDisplay').style.color = 'var(--mm-rosa-vibrante)';
+      const senhaDisplay = document.getElementById('senhaDisplay');
+      senhaDisplay.textContent = minhaSenha;
+      senhaDisplay.style.color = 'var(--mm-rosa-vibrante)';
+      
+      // Animação da senha
+      senhaDisplay.style.transform = 'scale(1.1)';
+      setTimeout(() => {
+        senhaDisplay.style.transform = 'scale(1)';
+      }, 300);
       
       // Mostra modal de confirmação
       document.getElementById('modalSenha').textContent = minhaSenha;
@@ -669,6 +804,13 @@
       if (!intervaloMonitoramento) {
         iniciarMonitoramento();
       }
+      
+      // Salva senha localmente
+      localStorage.setItem('milkmoo_minha_senha', JSON.stringify({
+        senha: minhaSenha,
+        tipo: produtoSelecionado,
+        timestamp: new Date().toISOString()
+      }));
     }
 
     // Função para limpar seleção
@@ -679,14 +821,19 @@
       // Remove seleção visual
       document.querySelectorAll('.produto-card').forEach(card => {
         card.classList.remove('selected');
+        card.querySelector('.produto-nome').classList.remove('selected');
       });
       
       // Reseta displays
-      document.getElementById('senhaDisplay').textContent = '---';
-      document.getElementById('senhaDisplay').style.color = 'var(--mm-preto)';
+      const senhaDisplay = document.getElementById('senhaDisplay');
+      senhaDisplay.textContent = '---';
+      senhaDisplay.style.color = 'var(--mm-preto)';
       document.getElementById('produtoDisplay').textContent = 'Nenhum produto selecionado';
       document.getElementById('btnGerarSenha').disabled = true;
       document.getElementById('minhaPosicao').textContent = '-';
+      
+      // Remove senha salva
+      localStorage.removeItem('milkmoo_minha_senha');
       
       playSound('clear');
     }
@@ -704,7 +851,13 @@
         document.getElementById('contadorFila').textContent = filaPainel.length;
         
         // Atualiza senha atual
-        document.getElementById('senhaAtualDisplay').textContent = senhaAtualPainel;
+        const senhaAtualDisplay = document.getElementById('senhaAtualDisplay');
+        senhaAtualDisplay.textContent = senhaAtualPainel;
+        
+        // Animação pulso quando muda
+        if (senhaAtualPainel !== '---') {
+          senhaAtualDisplay.classList.add('pulsing');
+        }
         
         // Atualiza histórico
         atualizarHistoricoChamadas(historicoPainel.slice(0, 3));
@@ -714,15 +867,16 @@
           const minhaPos = filaPainel.indexOf(minhaSenha);
           if (minhaPos !== -1) {
             minhaPosicao = minhaPos + 1;
-            document.getElementById('minhaPosicao').textContent = minhaPosicao;
+            const minhaPosicaoEl = document.getElementById('minhaPosicao');
+            minhaPosicaoEl.textContent = minhaPosicao;
             
             // Se for a próxima, destaca
             if (minhaPos === 0) {
-              document.getElementById('minhaPosicao').style.color = 'var(--verde-sucesso)';
-              document.getElementById('minhaPosicao').classList.add('pulsing');
+              minhaPosicaoEl.style.color = 'var(--verde-sucesso)';
+              minhaPosicaoEl.classList.add('pulsing');
             } else {
-              document.getElementById('minhaPosicao').style.color = 'var(--mm-rosa-vibrante)';
-              document.getElementById('minhaPosicao').classList.remove('pulsing');
+              minhaPosicaoEl.style.color = 'var(--mm-rosa-vibrante)';
+              minhaPosicaoEl.classList.remove('pulsing');
             }
           } else {
             // Verifica se já foi atendida
@@ -775,6 +929,7 @@
         notificacao.className = 'position-fixed top-0 start-50 translate-middle-x mt-3 alert alert-success border-3 border-dark';
         notificacao.style.zIndex = '9999';
         notificacao.style.borderRadius = '20px';
+        notificacao.style.boxShadow = '8px 8px 0 rgba(0,0,0,0.2)';
         notificacao.innerHTML = `
           <div class="d-flex align-items-center">
             <i class="fa-solid fa-bell fa-shake fa-2x me-3"></i>
@@ -796,6 +951,9 @@
         
         // Play sound
         playSound('bell');
+        
+        // Burst de partículas
+        burstParticles(30);
       }
     }
 
@@ -803,15 +961,19 @@
     function verificarSenhaAtiva() {
       const senhaSalva = localStorage.getItem('milkmoo_minha_senha');
       if (senhaSalva) {
-        const dados = JSON.parse(senhaSalva);
-        minhaSenha = dados.senha;
-        produtoSelecionado = dados.tipo;
-        
-        // Restaura seleção
-        if (produtoSelecionado) {
-          selecionarProduto(produtoSelecionado);
-          document.getElementById('senhaDisplay').textContent = minhaSenha;
-          document.getElementById('senhaDisplay').style.color = 'var(--mm-rosa-vibrante)';
+        try {
+          const dados = JSON.parse(senhaSalva);
+          minhaSenha = dados.senha;
+          produtoSelecionado = dados.tipo;
+          
+          // Restaura seleção
+          if (produtoSelecionado) {
+            selecionarProduto(produtoSelecionado);
+            document.getElementById('senhaDisplay').textContent = minhaSenha;
+            document.getElementById('senhaDisplay').style.color = 'var(--mm-rosa-vibrante)';
+          }
+        } catch (e) {
+          console.error('Erro ao carregar senha salva:', e);
         }
       }
     }
@@ -833,8 +995,19 @@
     }
 
     function playSound(tipo) {
-      // Implementar sons se desejar
-      console.log(`Play sound: ${tipo}`);
+      // URLs de som (opcional)
+      const sounds = {
+        select: '',
+        success: '',
+        clear: '',
+        bell: ''
+      };
+      
+      if (sounds[tipo]) {
+        const audio = new Audio(sounds[tipo]);
+        audio.volume = 0.3;
+        audio.play().catch(() => {});
+      }
     }
 
     function abrirModalAjuda() {
@@ -842,7 +1015,87 @@
       modal.show();
     }
 
-    // Salvar senha localmente
+    // Sistema de partículas
+    const canvas = document.getElementById('particlesCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas(){
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize',resizeCanvas);
+    resizeCanvas();
+
+    function spawnParticle(x,y,vx=0,vy=1.5,size=6,life=240,color='rgba(255,255,255,0.9)'){
+      particles.push({x,y,vx,vy,size,life,color});
+    }
+
+    function burstParticles(n){
+      for(let i=0;i<n;i++){
+        const x = Math.random()*canvas.width;
+        const y = Math.random()*canvas.height*0.6;
+        const vx = (Math.random()-0.5)*3.5;
+        const vy = Math.random()*2+0.6;
+        const s = Math.random()*6+3;
+        const colors = [
+          'rgba(244, 175, 194, 0.9)',  // Rosa pastel
+          'rgba(228, 108, 168, 0.9)',  // Rosa vibrante
+          'rgba(255, 255, 255, 0.9)'   // Branco
+        ];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        spawnParticle(x,y,vx,vy,s,200,color);
+      }
+    }
+
+    setInterval(()=>{
+      const x = Math.random()*canvas.width;
+      spawnParticle(x,-10,(Math.random()-0.5)*0.5,Math.random()*0.8+0.4,Math.random()*4+2,300);
+    },700);
+
+    function updateParticles(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      for(let i=particles.length-1;i>=0;i--){
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.02;
+        p.life--;
+
+        const alpha = Math.max(0,p.life/260);
+        try{
+          ctx.beginPath();
+          const col = p.color.replace(/[\d\.]+\)$/,(alpha.toFixed(2))+')');
+          ctx.fillStyle = col.includes("undefined") ? p.color : col;
+        }catch{
+          ctx.fillStyle = p.color;
+        }
+
+        ctx.ellipse(p.x,p.y,p.size,p.size*0.8,0,0,Math.PI*2);
+        ctx.fill();
+
+        if(p.y > canvas.height+50 || p.life <= 0){
+          particles.splice(i,1);
+        }
+      }
+      requestAnimationFrame(updateParticles);
+    }
+    updateParticles();
+
+    // Burst inicial de partículas
+    setTimeout(() => burstParticles(20), 1000);
+
+    // Event listeners para imagens
+    document.querySelectorAll('.produto-imagem').forEach(imgContainer => {
+      imgContainer.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const card = this.closest('.produto-card');
+        const tipo = card.id.replace('produto', '');
+        selecionarProduto(tipo);
+      });
+    });
+
+    // Salvar senha localmente ao sair
     window.addEventListener('beforeunload', function() {
       if (minhaSenha && produtoSelecionado) {
         localStorage.setItem('milkmoo_minha_senha', JSON.stringify({
@@ -852,6 +1105,7 @@
         }));
       }
     });
+
   </script>
 </body>
 </html>

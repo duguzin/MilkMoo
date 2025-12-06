@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="shortcut icon" href="../Imagens/Mascote/mascote.png" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <title>TV MilkMoo - Display de Atendimento</title>
+
+  <style>
+    :root {
+      --mm-rosa-pastel: #F4AFC2;   
+      --mm-rosa-vibrante: #E46CA8; 
+      --mm-preto: #000000;
+      --mm-branco: #FFFFFF;
+      --glass: rgba(255,255,255,0.7);
+      --text-dark: #2b2130;
+      --amarelo-tv: #FFD700;
+      --ciano-tv: #00FFFF;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { 
+      height: 100%; 
+      overflow: hidden;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      color: var(--mm-branco);
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Efeito de tela de TV */
+    .tv-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+      background-size: 100% 2px, 3px 100%;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.3;
+    }
+
+    .scan-line {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(to bottom, 
+        transparent 0%, 
+        rgba(0, 255, 255, 0.6) 50%, 
+        transparent 100%);
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+      animation: scan 4s linear infinite;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    @keyframes scan {
+      0% { top: 0; }
+      100% { top: 100%; }
+    }
+
+    /* Logo e Título */
+    .tv-header {
+      background: linear-gradient(90deg, var(--mm-rosa-vibrante), var(--mm-preto));
+      padding: 15px 40px;
+      border-bottom: 8px solid var(--mm-rosa-pastel);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      position: relative;
+      z-index: 10;
+    }
+
+    .tv-header::before {
+      content: "";
+      position: absolute;
+      top: -5px;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, 
+        var(--amarelo-tv), 
+        var(--ciano-tv), 
+        var(--amarelo-tv));
+      animation: rgb-line 3s linear infinite;
+    }
+
+    @keyframes rgb-line {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+
+    .logo-tv {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .logo-tv img {
+      height: 60px;
+      filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));
+      animation: pulse-logo 2s infinite;
+    }
+
+    @keyframes pulse-logo {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .tv-title {
+      font-size: 2.8rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      text-shadow: 
+        0 0 10px rgba(255,255,255,0.5),
+        0 0 20px var(--mm-rosa-vibrante),
+        0 0 30px var(--mm-rosa-vibrante);
+      background: linear-gradient(to right, 
+        var(--mm-branco), 
+        var(--mm-rosa-pastel), 
+        var(--mm-branco));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Container Principal */
+    .tv-container {
+      padding: 30px;
+      height: calc(100vh - 120px);
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      position: relative;
+      z-index: 5;
+    }
+
+    /* Display da Senha Atual */
+    .senha-display {
+      flex: 2;
+      background: linear-gradient(135deg, 
+        rgba(30, 30, 30, 0.9) 0%, 
+        rgba(0, 0, 0, 0.95) 100%);
+      border: 8px solid;
+      border-image: linear-gradient(45deg, 
+        var(--mm-rosa-vibrante), 
+        var(--mm-preto), 
+        var(--mm-rosa-vibrante)) 1;
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 40px;
+      box-shadow: 
+        0 0 40px rgba(228, 108, 168, 0.3),
+        inset 0 0 60px rgba(0, 0, 0, 0.8);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .senha-display::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: conic-gradient(
+        transparent,
+        rgba(228, 108, 168, 0.1),
+        transparent 30%
+      );
+      animation: rotate 8s linear infinite;
+    }
+
+    @keyframes rotate {
+      100% { transform: rotate(360deg); }
+    }
+
+    .senha-label {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--mm-rosa-pastel);
+      text-transform: uppercase;
+      letter-spacing: 4px;
+      margin-bottom: 20px;
+      text-shadow: 0 0 15px rgba(244, 175, 194, 0.5);
+    }
+
+    .senha-numero {
+      font-size: 8rem;
+      font-weight: 900;
+      color: var(--mm-branco);
+      text-shadow: 
+        0 0 20px var(--mm-rosa-vibrante),
+        0 0 40px var(--mm-rosa-vibrante),
+        0 0 60px var(--mm-rosa-vibrante);
+      letter-spacing: 10px;
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow {
+      from {
+        text-shadow: 
+          0 0 20px var(--mm-rosa-vibrante),
+          0 0 40px var(--mm-rosa-vibrante),
+          0 0 60px var(--mm-rosa-vibrante);
+      }
+      to {
+        text-shadow: 
+          0 0 30px var(--mm-rosa-vibrante),
+          0 0 50px var(--mm-rosa-vibrante),
+          0 0 70px var(--mm-rosa-vibrante);
+      }
+    }
+
+    .senha-instruction {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--mm-rosa-pastel);
+      margin-top: 30px;
+      text-align: center;
+      text-shadow: 0 0 10px rgba(244, 175, 194, 0.3);
+    }
+
+    /* Container de Informações */
+    .info-container {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .info-box {
+      background: linear-gradient(135deg, 
+        rgba(40, 40, 40, 0.9) 0%, 
+        rgba(20, 20, 20, 0.95) 100%);
+      border: 4px solid var(--mm-rosa-vibrante);
+      border-radius: 15px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      box-shadow: 
+        0 0 20px rgba(228, 108, 168, 0.2),
+        inset 0 0 30px rgba(0, 0, 0, 0.5);
+      transition: all 0.3s ease;
+    }
+
+    .info-box:hover {
+      transform: translateY(-5px);
+      box-shadow: 
+        0 0 30px rgba(228, 108, 168, 0.3),
+        inset 0 0 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .info-icon {
+      font-size: 2.5rem;
+      color: var(--mm-rosa-pastel);
+      min-width: 60px;
+      text-align: center;
+      text-shadow: 0 0 15px rgba(244, 175, 194, 0.5);
+    }
+
+    .info-content {
+      flex: 1;
+    }
+
+    .info-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--mm-rosa-pastel);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+
+    .info-value {
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: var(--mm-branco);
+      text-shadow: 0 0 10px rgba(255,255,255,0.3);
+    }
+
+    .info-subtitle {
+      font-size: 0.9rem;
+      color: #aaa;
+      margin-top: 5px;
+    }
+
+    /* Contador de Fila */
+    .fila-count {
+      background: linear-gradient(135deg, 
+        rgba(228, 108, 168, 0.2) 0%, 
+        rgba(244, 175, 194, 0.1) 100%);
+    }
+
+    /* Próximas Senhas */
+    .next-senhas {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .next-senha-item {
+      background: linear-gradient(90deg, 
+        rgba(50, 50, 50, 0.7) 0%, 
+        rgba(30, 30, 30, 0.9) 100%);
+      padding: 12px 20px;
+      border-radius: 10px;
+      border-left: 5px solid var(--mm-rosa-vibrante);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      animation: slideIn 0.5s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .next-senha-number {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--mm-branco);
+      text-shadow: 0 0 10px rgba(228, 108, 168, 0.3);
+    }
+
+    .next-senha-pos {
+      font-size: 1rem;
+      color: var(--mm-rosa-pastel);
+      font-weight: 600;
+    }
+
+    /* Relógio */
+    .clock-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .clock-display {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--mm-branco);
+      text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+      letter-spacing: 2px;
+    }
+
+    .date-display {
+      font-size: 1.1rem;
+      color: var(--mm-rosa-pastel);
+      margin-top: 5px;
+    }
+
+    /* Modo Festa */
+    .festa-ativo {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: linear-gradient(90deg, 
+        var(--amarelo-tv), 
+        #FF4081, 
+        var(--ciano-tv));
+      padding: 10px 20px;
+      border-radius: 50px;
+      animation: festa-pulse 1s infinite;
+      z-index: 100;
+    }
+
+    @keyframes festa-pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    /* Notificações */
+    .notification {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: linear-gradient(135deg, 
+        rgba(228, 108, 168, 0.95) 0%, 
+        rgba(244, 175, 194, 0.9) 100%);
+      padding: 20px 30px;
+      border-radius: 15px;
+      border: 3px solid var(--mm-branco);
+      box-shadow: 0 0 40px rgba(228, 108, 168, 0.6);
+      animation: slideUp 0.5s ease-out;
+      z-index: 1000;
+      max-width: 400px;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(100px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .notification-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--mm-branco);
+      margin-bottom: 10px;
+    }
+
+    .notification-text {
+      font-size: 1.1rem;
+      color: var(--mm-branco);
+    }
+
+    /* Responsividade */
+    @media (max-width: 1200px) {
+      .senha-numero { font-size: 6rem; }
+      .tv-title { font-size: 2.2rem; }
+    }
+
+    @media (max-width: 768px) {
+      .tv-container { padding: 15px; gap: 15px; }
+      .senha-numero { font-size: 4rem; }
+      .tv-title { font-size: 1.8rem; }
+      .info-container { grid-template-columns: 1fr; }
+      .info-box { padding: 15px; }
+    }
+
+    @media (max-width: 480px) {
+      .senha-numero { font-size: 3rem; letter-spacing: 5px; }
+      .senha-label { font-size: 1.2rem; }
+      .tv-title { font-size: 1.4rem; }
+    }
+
+    /* Efeitos sonoros visuais */
+    .sound-wave {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, 
+        transparent, 
+        var(--ciano-tv), 
+        transparent);
+      opacity: 0;
+    }
+
+    .playing .sound-wave {
+      animation: soundWave 1s ease-out;
+    }
+
+    @keyframes soundWave {
+      0% { opacity: 0; transform: scaleX(0); }
+      50% { opacity: 0.7; transform: scaleX(1); }
+      100% { opacity: 0; transform: scaleX(0); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Efeitos de TV -->
+  <div class="tv-overlay"></div>
+  <div class="scan-line"></div>
+
+  <!-- Cabeçalho TV -->
+  <div class="tv-header">
+    <div class="logo-tv">
+      <img src="../Imagens/Mascote/mascote.png" alt="Mascote MilkMoo">
+      <div class="tv-title">
+        <span>MilkMoo TV</span>
+        <small style="font-size: 1rem; display: block; letter-spacing: 2px; color: var(--mm-rosa-pastel);">
+          Display de Atendimento
+        </small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Container Principal -->
+  <div class="tv-container">
+    <!-- Display da Senha Atual -->
+    <div class="senha-display" id="senhaDisplay">
+      <div class="senha-label">Senha em Atendimento</div>
+      <div class="senha-numero" id="senhaAtual">---</div>
+      <div class="senha-instruction" id="senhaInstruction">
+        Dirija-se ao balcão para atendimento
+      </div>
+    </div>
+
+    <!-- Container de Informações -->
+    <div class="info-container">
+      <!-- Fila de Espera -->
+      <div class="info-box fila-count">
+        <div class="info-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="info-content">
+          <div class="info-title">Pessoas na Fila</div>
+          <div class="info-value" id="contadorFila">0</div>
+          <div class="info-subtitle">Aguardando atendimento</div>
+        </div>
+      </div>
+
+      <!-- Próximas Senhas -->
+      <div class="info-box">
+        <div class="info-icon">
+          <i class="fas fa-forward"></i>
+        </div>
+        <div class="info-content">
+          <div class="info-title">Próximas Senhas</div>
+          <div class="next-senhas" id="proximasSenhas">
+            <div class="next-senha-item">
+              <span class="next-senha-number">---</span>
+              <span class="next-senha-pos">Próxima</span>
+            </div>
+            <div class="next-senha-item">
+              <span class="next-senha-number">---</span>
+              <span class="next-senha-pos">2ª na fila</span>
+            </div>
+            <div class="next-senha-item">
+              <span class="next-senha-number">---</span>
+              <span class="next-senha-pos">3ª na fila</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Relógio e Data -->
+      <div class="info-box clock-box">
+        <div class="info-icon">
+          <i class="fas fa-clock"></i>
+        </div>
+        <div class="info-content">
+          <div class="info-title">Horário Atual</div>
+          <div class="clock-display" id="relogio">00:00:00</div>
+          <div class="date-display" id="data">01/01/2025</div>
+        </div>
+      </div>
+
+      <!-- Última Chamada -->
+      <div class="info-box">
+        <div class="info-icon">
+          <i class="fas fa-history"></i>
+        </div>
+        <div class="info-content">
+          <div class="info-title">Última Chamada</div>
+          <div class="info-value" id="ultimaChamada">---</div>
+          <div class="info-subtitle">Há alguns instantes</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modo Festa Ativo -->
+  <div class="festa-ativo" id="festaBadge" style="display: none;">
+    <i class="fas fa-star"></i> MODO FESTA ATIVO
+  </div>
+
+  <!-- Notificação de Nova Senha -->
+  <div class="notification" id="notification" style="display: none;">
+    <div class="notification-title">
+      <i class="fas fa-bell"></i> Nova Senha Chamada!
+    </div>
+    <div class="notification-text" id="notificationText"></div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Estado da TV
+    let estadoTV = {
+      senhaAtual: '---',
+      fila: [],
+      historico: [],
+      modoFesta: false,
+      ultimaAtualizacao: null
+    };
+
+    // Inicialização
+    document.addEventListener('DOMContentLoaded', function() {
+      iniciarRelogio();
+      iniciarMonitoramento();
+      verificarModoFesta();
+    });
+
+    // Função para atualizar relógio
+    function iniciarRelogio() {
+      function atualizarRelogio() {
+        const agora = new Date();
+        
+        // Formata hora
+        const horas = agora.getHours().toString().padStart(2, '0');
+        const minutos = agora.getMinutes().toString().padStart(2, '0');
+        const segundos = agora.getSeconds().toString().padStart(2, '0');
+        document.getElementById('relogio').textContent = `${horas}:${minutos}:${segundos}`;
+        
+        // Formata data
+        const dias = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+        const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+        const diaSemana = dias[agora.getDay()];
+        const dia = agora.getDate().toString().padStart(2, '0');
+        const mes = meses[agora.getMonth()];
+        const ano = agora.getFullYear();
+        document.getElementById('data').textContent = `${diaSemana}, ${dia} ${mes} ${ano}`;
+      }
+      
+      atualizarRelogio();
+      setInterval(atualizarRelogio, 1000);
+    }
+
+    // Função para monitorar mudanças no painel
+    function iniciarMonitoramento() {
+      // Verifica a cada segundo
+      setInterval(() => {
+        // Obtém dados do painel
+        const senhaAtual = localStorage.getItem('milkmoo_senha_atual') || '---';
+        const fila = JSON.parse(localStorage.getItem('milkmoo_fila') || '[]');
+        const historico = JSON.parse(localStorage.getItem('milkmoo_historico') || '[]');
+        const modoFesta = localStorage.getItem('milkmoo_festa') === 'true';
+        
+        // Verifica se houve mudança na senha atual
+        if (senhaAtual !== estadoTV.senhaAtual && senhaAtual !== '---') {
+          novaSenhaChamada(senhaAtual);
+        }
+        
+        // Atualiza estado
+        estadoTV.senhaAtual = senhaAtual;
+        estadoTV.fila = fila;
+        estadoTV.historico = historico;
+        estadoTV.modoFesta = modoFesta;
+        estadoTV.ultimaAtualizacao = new Date();
+        
+        // Atualiza interface
+        atualizarInterface();
+        
+      }, 1000);
+    }
+
+    // Função para atualizar toda a interface
+    function atualizarInterface() {
+      // Senha atual
+      const senhaAtualEl = document.getElementById('senhaAtual');
+      if (estadoTV.senhaAtual !== '---') {
+        senhaAtualEl.textContent = estadoTV.senhaAtual;
+        senhaAtualEl.style.animation = 'none';
+        setTimeout(() => {
+          senhaAtualEl.style.animation = 'glow 2s ease-in-out infinite alternate';
+        }, 10);
+      } else {
+        senhaAtualEl.textContent = '---';
+      }
+      
+      // Contador de fila
+      document.getElementById('contadorFila').textContent = estadoTV.fila.length;
+      
+      // Próximas senhas
+      atualizarProximasSenhas();
+      
+      // Última chamada
+      if (estadoTV.historico.length > 0) {
+        const ultima = estadoTV.historico[0];
+        document.getElementById('ultimaChamada').textContent = ultima.senha;
+        
+        // Calcula tempo desde a última chamada
+        const ultimaChamada = new Date(ultima.quando);
+        const agora = new Date();
+        const diffMinutos = Math.floor((agora - ultimaChamada) / (1000 * 60));
+        
+        let tempoTexto = 'Agora mesmo';
+        if (diffMinutos === 1) tempoTexto = 'Há 1 minuto';
+        else if (diffMinutos > 1) tempoTexto = `Há ${diffMinutos} minutos`;
+        
+        document.querySelector('#ultimaChamada + .info-subtitle').textContent = tempoTexto;
+      }
+      
+      // Modo festa
+      verificarModoFesta();
+    }
+
+    // Função para atualizar próximas senhas
+    function atualizarProximasSenhas() {
+      const container = document.getElementById('proximasSenhas');
+      container.innerHTML = '';
+      
+      // Mostra até 3 próximas senhas
+      const proximas = estadoTV.fila.slice(0, 3);
+      
+      if (proximas.length === 0) {
+        for (let i = 1; i <= 3; i++) {
+          const item = document.createElement('div');
+          item.className = 'next-senha-item';
+          item.innerHTML = `
+            <span class="next-senha-number">---</span>
+            <span class="next-senha-pos">${i}ª na fila</span>
+          `;
+          container.appendChild(item);
+        }
+      } else {
+        proximas.forEach((senha, index) => {
+          const item = document.createElement('div');
+          item.className = 'next-senha-item';
+          item.style.animationDelay = `${index * 0.1}s`;
+          item.innerHTML = `
+            <span class="next-senha-number">${senha}</span>
+            <span class="next-senha-pos">${index === 0 ? 'Próxima' : `${index + 1}ª na fila`}</span>
+          `;
+          container.appendChild(item);
+        });
+        
+        // Preenche os restantes com ---
+        for (let i = proximas.length; i < 3; i++) {
+          const item = document.createElement('div');
+          item.className = 'next-senha-item';
+          item.innerHTML = `
+            <span class="next-senha-number">---</span>
+            <span class="next-senha-pos">${i + 1}ª na fila</span>
+          `;
+          container.appendChild(item);
+        }
+      }
+    }
+
+    // Função para verificar modo festa
+    function verificarModoFesta() {
+      const festaBadge = document.getElementById('festaBadge');
+      const modoFesta = localStorage.getItem('milkmoo_festa') === 'true';
+      
+      if (modoFesta) {
+        festaBadge.style.display = 'block';
+        document.body.classList.add('festa-mode');
+        
+        // Adiciona efeitos extras no modo festa
+        if (!document.querySelector('.festa-effects')) {
+          const effects = document.createElement('div');
+          effects.className = 'festa-effects';
+          effects.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 3;
+            background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), 
+              rgba(255, 215, 0, 0.1) 0%, 
+              transparent 50%);
+          `;
+          document.body.appendChild(effects);
+          
+          // Move o efeito com o mouse
+          document.addEventListener('mousemove', (e) => {
+            effects.style.setProperty('--x', `${e.clientX}px`);
+            effects.style.setProperty('--y', `${e.clientY}px`);
+          });
+        }
+      } else {
+        festaBadge.style.display = 'none';
+        document.body.classList.remove('festa-mode');
+        const effects = document.querySelector('.festa-effects');
+        if (effects) effects.remove();
+      }
+    }
+
+    // Função quando nova senha é chamada
+    function novaSenhaChamada(senha) {
+      // Mostra notificação
+      const notification = document.getElementById('notification');
+      const notificationText = document.getElementById('notificationText');
+      
+      notificationText.textContent = `Senha ${senha} - Dirija-se ao balcão`;
+      notification.style.display = 'block';
+      
+      // Efeito visual na senha
+      const senhaDisplay = document.getElementById('senhaDisplay');
+      senhaDisplay.classList.add('playing');
+      
+      // Animação de som
+      const soundWave = document.createElement('div');
+      soundWave.className = 'sound-wave';
+      senhaDisplay.appendChild(soundWave);
+      
+      // Remove notificação após 10 segundos
+      setTimeout(() => {
+        notification.style.display = 'none';
+      }, 10000);
+      
+      // Remove efeito de som
+      setTimeout(() => {
+        senhaDisplay.classList.remove('playing');
+        if (soundWave.parentNode) {
+          soundWave.remove();
+        }
+      }, 1000);
+      
+      // Atualiza instrução
+      document.getElementById('senhaInstruction').textContent = 
+        `Senha ${senha} - Dirija-se ao balcão para atendimento`;
+      
+      // Adiciona ao histórico local
+      estadoTV.historico.unshift({
+        senha: senha,
+        quando: new Date().toISOString()
+      });
+      
+      // Limita histórico
+      if (estadoTV.historico.length > 10) {
+        estadoTV.historico.pop();
+      }
+    }
+
+    // Função para animação de piscar (alternar entre duas senhas)
+    function modoAlternancia() {
+      const senhaEl = document.getElementById('senhaAtual');
+      const fila = estadoTV.fila;
+      
+      if (fila.length >= 2) {
+        let mostraPrimeira = true;
+        
+        setInterval(() => {
+          if (mostraPrimeira) {
+            senhaEl.textContent = fila[0];
+          } else {
+            senhaEl.textContent = fila[1];
+          }
+          mostraPrimeira = !mostraPrimeira;
+        }, 3000); // Alterna a cada 3 segundos
+      }
+    }
+
+    // Iniciar modo de alternância se houver mais de uma senha na fila
+    setInterval(() => {
+      if (estadoTV.fila.length >= 2) {
+        // modoAlternancia();
+      }
+    }, 5000);
+
+    // Efeito de atualização automática do tema
+    function cicloDeCores() {
+      const cores = [
+        '#E46CA8', // Rosa vibrante
+        '#FF4081', // Rosa elétrico
+        '#00FFFF', // Ciano
+        '#FFD700', // Amarelo ouro
+        '#9C27B0', // Roxo
+        '#00E676'  // Verde neon
+      ];
+      
+      let corIndex = 0;
+      
+      setInterval(() => {
+        if (estadoTV.modoFesta) {
+          const novaCor = cores[corIndex];
+          document.documentElement.style.setProperty('--mm-rosa-vibrante', novaCor);
+          
+          // Atualiza gradientes
+          const elementos = document.querySelectorAll('.senha-display, .info-box, .tv-header');
+          elementos.forEach(el => {
+            el.style.background = el.style.background.replace(/#[0-9A-F]{6}/g, novaCor);
+          });
+          
+          corIndex = (corIndex + 1) % cores.length;
+        }
+      }, 5000); // Muda cor a cada 5 segundos no modo festa
+    }
+    
+    cicloDeCores();
+
+    // Função para simular modo karaokê (mostra letras da senha)
+    function modoKaraoke(senha) {
+      const senhaEl = document.getElementById('senhaAtual');
+      senhaEl.innerHTML = '';
+      
+      senha.split('').forEach((letra, index) => {
+        const span = document.createElement('span');
+        span.textContent = letra;
+        span.style.display = 'inline-block';
+        span.style.animation = `pulse 1s ease-in-out ${index * 0.2}s infinite alternate`;
+        senhaEl.appendChild(span);
+      });
+    }
+
+    // Configurações automáticas baseadas no horário
+    function ajustarModoPorHorario() {
+      const hora = new Date().getHours();
+      
+      // Noite (18h-6h) - modo escuro intenso
+      if (hora >= 18 || hora < 6) {
+        document.body.style.background = 'linear-gradient(135deg, #0a0a0a 0%, #000000 100%)';
+        document.querySelector('.tv-overlay').style.opacity = '0.4';
+      }
+      // Manhã (6h-12h) - modo claro suave
+      else if (hora >= 6 && hora < 12) {
+        document.body.style.background = 'linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%)';
+      }
+      // Tarde (12h-18h) - modo normal
+      else {
+        document.body.style.background = 'linear-gradient(135deg, #1a1a1a 0%, #000000 100%)';
+      }
+    }
+    
+    setInterval(ajustarModoPorHorario, 60000); // Ajusta a cada minuto
+    ajustarModoPorHorario();
+
+    // Controle de brilho automático
+    let brilho = 1;
+    function ajustarBrilho() {
+      const hora = new Date().getHours();
+      
+      // Reduz brilho à noite
+      if (hora >= 20 || hora < 6) {
+        brilho = 0.8;
+      } else {
+        brilho = 1;
+      }
+      
+      document.body.style.filter = `brightness(${brilho})`;
+    }
+    
+    setInterval(ajustarBrilho, 300000); // Ajusta a cada 5 minutos
+    ajustarBrilho();
+
+    // Inicializar com dados atuais
+    setTimeout(() => {
+      // Carrega dados iniciais
+      const senhaAtual = localStorage.getItem('milkmoo_senha_atual') || '---';
+      const fila = JSON.parse(localStorage.getItem('milkmoo_fila') || '[]');
+      const historico = JSON.parse(localStorage.getItem('milkmoo_historico') || '[]');
+      
+      estadoTV.senhaAtual = senhaAtual;
+      estadoTV.fila = fila;
+      estadoTV.historico = historico;
+      
+      atualizarInterface();
+    }, 500);
+
+    // Efeito de digitação para mensagens
+    function typeWriter(elementId, text, speed = 50) {
+      const element = document.getElementById(elementId);
+      if (!element) return;
+      
+      element.innerHTML = '';
+      let i = 0;
+      
+      function type() {
+        if (i < text.length) {
+          element.innerHTML += text.charAt(i);
+          i++;
+          setTimeout(type, speed);
+        }
+      }
+      
+      type();
+    }
+
+    // Event listener para teclado (atalhos)
+    document.addEventListener('keydown', (e) => {
+      // F - Alterna modo festa
+      if (e.key === 'f' || e.key === 'F') {
+        const modoFestaAtual = localStorage.getItem('milkmoo_festa') === 'true';
+        localStorage.setItem('milkmoo_festa', (!modoFestaAtual).toString());
+        verificarModoFesta();
+      }
+      
+      // R - Recarrega dados
+      if (e.key === 'r' || e.key === 'R') {
+        location.reload();
+      }
+      
+      // M - Mostra/oculta mascote
+      if (e.key === 'm' || e.key === 'M') {
+        const mascote = document.querySelector('.logo-tv img');
+        mascote.style.display = mascote.style.display === 'none' ? 'block' : 'none';
+      }
+    });
+
+    // Informações de status no console
+    console.log('%c📺 TV MilkMoo - Display de Atendimento', 'color: #E46CA8; font-size: 16px; font-weight: bold;');
+    console.log('%cAtalhos de teclado:', 'color: #00FFFF;');
+    console.log('%cF - Alternar Modo Festa', 'color: #FFD700;');
+    console.log('%cR - Recarregar página', 'color: #FFD700;');
+    console.log('%cM - Mostrar/Ocultar Mascote', 'color: #FFD700;');
+
+  </script>
+</body>
+</html>
