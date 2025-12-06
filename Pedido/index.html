@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="shortcut icon" href="../Imagens/Mascote/mascote.png" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <title>Painel de Pedido – MilkMoo</title>
+
+  <style>
+    :root {
+      --mm-rosa-pastel: #F4AFC2;   
+      --mm-rosa-vibrante: #E46CA8; 
+      --mm-preto: #000000;
+      --mm-branco: #FFFFFF;
+      --glass: rgba(255,255,255,0.7);
+      --text-dark: #2b2130;
+      --verde-sucesso: #28a745;
+      --azul-info: #17a2b8;
+      --amarelo-alerta: #ffc107;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      color: var(--text-dark);
+      min-height: 100vh;
+      background-color: var(--mm-branco);
+      background-image: url('../Imagens/fundo.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Header */
+    .header-card {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 0 18px;
+      position: relative;
+      z-index: 20;
+    }
+
+    .titulo-container {
+      background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
+      border: 4px solid var(--mm-preto);
+      border-radius: 20px;
+      padding: 24px 30px;
+      box-shadow: 8px 8px 0 rgba(0,0,0,0.15), 0 12px 30px rgba(0,0,0,0.08);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .titulo-container::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 12px;
+      background: linear-gradient(90deg, var(--mm-rosa-vibrante), var(--mm-rosa-pastel));
+      border-bottom: 4px solid var(--mm-preto);
+      border-radius: 16px 16px 0 0;
+    }
+
+    .hora-container {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: linear-gradient(90deg, var(--mm-rosa-pastel), var(--mm-rosa-vibrante));
+    padding: 12px 24px;
+    border-radius: 20px;
+    border: 3px solid var(--mm-preto);
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.15);
+    margin-top: 10px;
+  }
+
+  #hora {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--mm-branco);
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    letter-spacing: 1px;
+  }
+
+  .hora-container i {
+    font-size: 1.6rem;
+    color: var(--mm-branco);
+    filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.2));
+  }
+
+    h1 {
+      font-size: 2.5rem;
+      color: var(--mm-preto);
+      margin: 0 0 10px 0;
+      font-weight: 900;
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+    }
+
+    /* Cards de Produtos */
+    .produto-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
+      border: 4px solid var(--mm-preto);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 6px 6px 0 rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    .produto-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 8px 8px 0 rgba(0,0,0,0.15);
+      border-color: var(--mm-rosa-vibrante);
+    }
+
+    .produto-card.selected {
+      /* background: linear-gradient(180deg, rgba(244,175,194,0.15), rgba(228,108,168,0.1)); */
+      border-color: var(--mm-rosa-vibrante);
+      box-shadow: 8px 8px 0 rgba(228,108,168,0.2);
+      color: var(--mm-rosa-vibrante);
+    }
+    
+    .produto-nome.selected {
+        color: var(--mm-rosa-vibrante);
+    }
+
+    .produto-icone {
+      font-size: 2.5rem;
+      color: var(--mm-rosa-vibrante);
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    .produto-nome {
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .produto-desc {
+      font-size: 0.9rem;
+      color: #666;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    .produto-preco {
+      font-size: 1.3rem;
+      font-weight: 900;
+      color: var(--verde-sucesso);
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    /* Painel da Senha */
+    .senha-painel {
+      background: rgba(255, 255, 255, 0.9);
+      border: 4px solid var(--mm-preto);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 8px 8px 0 rgba(0,0,0,0.15);
+      margin-top: 30px;
+    }
+
+    .senha-gerada {
+      font-size: 4rem;
+      font-weight: 900;
+      color: var(--mm-preto);
+      text-align: center;
+      letter-spacing: 5px;
+      margin: 20px 0;
+      text-shadow: 3px 3px 0 rgba(0,0,0,0.1);
+    }
+
+    .status-fila {
+      background: linear-gradient(90deg, var(--mm-rosa-pastel), var(--mm-rosa-vibrante));
+      color: white;
+      padding: 10px 20px;
+      border-radius: 20px;
+      border: 3px solid var(--mm-preto);
+      font-weight: 700;
+      display: inline-block;
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.15);
+    }
+
+    /* Botões */
+    .btn-milk {
+      border-radius: 20px;
+      padding: 16px 30px;
+      font-weight: 900;
+      border: 3px solid var(--mm-preto) !important;
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.25);
+      transition: all 0.2s ease;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .btn-milk:hover {
+      transform: translateY(-3px);
+      box-shadow: 6px 6px 0 rgba(0,0,0,0.3);
+    }
+
+    .btn-milk:active {
+      transform: translateY(1px);
+      box-shadow: 2px 2px 0 rgba(0,0,0,0.25);
+    }
+
+    .btn-gerar {
+      background: linear-gradient(90deg, var(--mm-rosa-vibrante), var(--mm-rosa-pastel));
+      color: white;
+    }
+
+    .btn-limpar {
+      background: linear-gradient(90deg, #666, #999);
+      color: white;
+    }
+
+    /* Modal de Confirmação */
+    .modal-content {
+      border-radius: 20px;
+      border: 4px solid var(--mm-preto);
+      box-shadow: 8px 8px 0 rgba(0,0,0,0.15);
+    }
+
+    .modal-header {
+      background: linear-gradient(90deg, var(--mm-rosa-vibrante), var(--mm-rosa-pastel));
+      border-bottom: 3px solid var(--mm-preto);
+      border-radius: 16px 16px 0 0 !important;
+      color: white;
+    }
+
+    /* Informações da Fila */
+    .info-box {
+      background: rgba(255,255,255,0.9);
+      border: 3px solid var(--mm-preto);
+      border-radius: 20px;
+      padding: 20px;
+      margin-top: 20px;
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.1);
+    }
+
+    .contador-fila {
+      font-size: 3rem;
+      font-weight: 900;
+      color: var(--mm-rosa-vibrante);
+      text-align: center;
+    }
+
+    .senha-atual {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--mm-preto);
+      text-align: center;
+      margin: 10px 0;
+    }
+
+    /* Animação de pulso para senha atual */
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    .pulsing {
+      animation: pulse 2s infinite;
+    }
+
+    /* Responsivo */
+    @media (max-width: 768px) {
+      h1 { font-size: 2rem; }
+      .senha-gerada { font-size: 2.5rem; }
+      .produto-nome { font-size: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- CABEÇALHO ESTILIZADO COMO CARD -->
+  <div class="header-card">
+    <div class="titulo-container">
+      <h1>🥛 MilkMoo – Painel de Atendimento</h1>
+      <div class="hora-container">
+        <i class="fa-solid fa-clock"></i>
+        <div id="hora" aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Container Principal -->
+  <div class="container mt-4" style="max-width: 1200px;">
+    
+    <!-- Seção 1: Seleção de Produtos -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <!-- <h2 class="text-center mb-4 fw-bold" style="color: var(--mm-preto);">
+          <i class="fa-solid fa-utensils"></i> Escolha seu Produto
+        </h2> -->
+      </div>
+      
+      <!-- Produto 1 -->
+      <div class="col-md-4 col-sm-6 mb-3">
+        <div class="produto-card" onclick="selecionarProduto('A')" id="produtoA">
+          <div class="produto-icone">
+            <i class="fa-solid fa-glass-whiskey"></i>
+          </div>
+          <div class="produto-nome">Milkshake Tradicional</div>
+          <div class="produto-desc">Cremoso e saboroso, com chantilly</div>
+          <div class="produto-preco">R$ 12,90</div>
+          <div class="text-center">
+            <span class="badge bg-dark">Tipo A</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Produto 2 -->
+      <div class="col-md-4 col-sm-6 mb-3">
+        <div class="produto-card" onclick="selecionarProduto('B')" id="produtoB">
+          <div class="produto-icone">
+            <i class="fa-solid fa-crown"></i>
+          </div>
+          <div class="produto-nome">Milkshake Premium</div>
+          <div class="produto-desc">Com topping especial e cookies</div>
+          <div class="produto-preco">R$ 18,90</div>
+          <div class="text-center">
+            <span class="badge bg-dark">Tipo B</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Produto 3 -->
+      <div class="col-md-4 col-sm-6 mb-3">
+        <div class="produto-card" onclick="selecionarProduto('C')" id="produtoC">
+          <div class="produto-icone">
+            <i class="fa-solid fa-bowl-food"></i>
+          </div>
+          <div class="produto-nome">Açaí Cremoso</div>
+          <div class="produto-desc">Com granola e frutas frescas</div>
+          <div class="produto-preco">R$ 15,50</div>
+          <div class="text-center">
+            <span class="badge bg-dark">Tipo C</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Produto 4 -->
+      <div class="col-md-4 col-sm-6 mb-3">
+        <div class="produto-card" onclick="selecionarProduto('D')" id="produtoD">
+          <div class="produto-icone">
+            <i class="fa-solid fa-ice-cream"></i>
+          </div>
+          <div class="produto-nome">Picolé Artesanal</div>
+          <div class="produto-desc">Feito com frutas da estação</div>
+          <div class="produto-preco">R$ 7,90</div>
+          <div class="text-center">
+            <span class="badge bg-dark">Tipo D</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Produto 5 -->
+      <div class="col-md-4 col-sm-6 mb-3">
+        <div class="produto-card" onclick="selecionarProduto('E')" id="produtoE">
+          <div class="produto-icone">
+            <i class="fa-solid fa-cake-candles"></i>
+          </div>
+          <div class="produto-nome">Sobremesa Especial</div>
+          <div class="produto-desc">Brownie com sorvete e calda</div>
+          <div class="produto-preco">R$ 22,90</div>
+          <div class="text-center">
+            <span class="badge bg-dark">Tipo E</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Produto 6: Personalizado -->
+      <div class="col-md-4 col-sm-6 mb-3">
+        <div class="produto-card" onclick="selecionarProduto('F')" id="produtoF">
+          <div class="produto-icone">
+            <i class="fa-solid fa-star"></i>
+          </div>
+          <div class="produto-nome">Combo Personalizado</div>
+          <div class="produto-desc">Monte seu próprio combo</div>
+          <div class="produto-preco">A partir de R$ 25,90</div>
+          <div class="text-center">
+            <span class="badge bg-dark">Tipo F</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Seção 2: Painel de Senha e Fila -->
+    <div class="row">
+      <div class="col-lg-6 mb-4">
+        <div class="senha-painel">
+          <h3 class="text-center mb-3 fw-bold">
+            <i class="fa-solid fa-ticket"></i> Sua Senha
+          </h3>
+          
+          <div class="senha-gerada" id="senhaDisplay">---</div>
+          
+          <div class="text-center mb-3">
+            <span class="badge bg-dark fs-6" id="produtoDisplay">Nenhum produto selecionado</span>
+          </div>
+          
+          <div class="d-grid gap-2">
+            <button class="btn btn-milk btn-gerar" onclick="gerarSenhaUsuario()" id="btnGerarSenha" disabled>
+              <i class="fa-solid fa-wand-magic-sparkles"></i> GERAR MINHA SENHA
+            </button>
+            <button class="btn btn-milk btn-limpar" onclick="limparSelecao()">
+              <i class="fa-solid fa-trash"></i> LIMPAR SELEÇÃO
+            </button>
+          </div>
+          
+          <div class="mt-4 text-center">
+            <p class="mb-2"><i class="fa-solid fa-circle-info"></i> Após gerar, acompanhe sua posição abaixo</p>
+            <small class="text-muted">Sua senha será automaticamente enviada para o painel</small>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-6 mb-4">
+        <div class="info-box">
+          <h3 class="text-center mb-3 fw-bold">
+            <i class="fa-solid fa-chart-line"></i> Situação da Fila
+          </h3>
+          
+          <div class="row text-center">
+            <div class="col-6">
+              <div class="mb-3">
+                <div class="fs-5 fw-bold">Pessoas na fila</div>
+                <div class="contador-fila" id="contadorFila">0</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="mb-3">
+                <div class="fs-5 fw-bold">Sua posição</div>
+                <div class="contador-fila" id="minhaPosicao">-</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mt-4">
+            <div class="fs-5 fw-bold text-center mb-2">
+              <i class="fa-solid fa-bullhorn"></i> Senha Atual
+            </div>
+            <div class="senha-atual pulsing" id="senhaAtualDisplay">---</div>
+            <div class="text-center text-muted">Sendo atendida no momento</div>
+          </div>
+          
+          <div class="mt-4">
+            <div class="fs-5 fw-bold text-center mb-2">
+              <i class="fa-solid fa-clock-rotate-left"></i> Últimas Chamadas
+            </div>
+            <div id="historicoChamadas" class="text-center">
+              <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+              Carregando...
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Seção 3: Instruções -->
+    <div class="row mt-2">
+      <div class="col-12">
+        <div class="alert alert-dark border-3 border-dark" style="border-radius: 20px;">
+          <h5 class="alert-heading fw-bold"><i class="fa-solid fa-lightbulb"></i> Como funciona:</h5>
+          <ol class="mb-0">
+            <li><strong>Selecione</strong> um produto acima</li>
+            <li><strong>Clique em "Gerar Minha Senha"</strong></li>
+            <li><strong>Acompanhe</strong> sua posição na fila ao lado</li>
+            <li><strong>Quando sua senha for chamada</strong>, dirija-se ao balcão</li>
+            <li>Espere<strong>"Repetir sua Chamada"</strong> se não ouvir</li>
+          </ol>
+          <hr>
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <i class="fa-solid fa-headset"></i> Dúvidas? Fale com nosso atendente
+            </div>
+            <button class="btn btn-sm btn-dark" onclick="abrirModalAjuda()">
+              <i class="fa-solid fa-question-circle"></i> Ajuda
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Confirmação -->
+  <div class="modal fade" id="confirmaModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold">
+            <i class="fa-solid fa-check-circle"></i> Senha Gerada com Sucesso!
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-center">
+          <div class="fs-1 fw-bold mb-3" id="modalSenha"></div>
+          <p>Para o produto: <strong id="modalProduto"></strong></p>
+          <p class="text-muted">Sua senha foi enviada para o sistema. Acompanhe sua posição na fila.</p>
+          <div class="alert alert-info">
+            <i class="fa-solid fa-bell"></i> Você será avisado quando for sua vez!
+          </div>
+        </div>
+        <div class="modal-footer justify-content-center">
+          <button type="button" class="btn btn-dark btn-milk" data-bs-dismiss="modal">
+            <i class="fa-solid fa-thumbs-up"></i> Entendi!
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Ajuda -->
+  <div class="modal fade" id="ajudaModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold">
+            <i class="fa-solid fa-question-circle"></i> Ajuda - MilkMoo
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <h6>Perguntas Frequentes:</h6>
+          <div class="accordion" id="accordionAjuda">
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                  Como sei quando é minha vez?
+                </button>
+              </h2>
+              <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionAjuda">
+                <div class="accordion-body">
+                  Sua senha aparecerá no painel "Senha Atual" quando for chamada. Você também pode ouvir o anúncio pelo sistema de som.
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                  Posso cancelar minha senha?
+                </button>
+              </h2>
+              <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionAjuda">
+                <div class="accordion-body">
+                  Sim, basta falar com um atendente no balcão para remover sua senha da fila.
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
+                  Quanto tempo de espera?
+                </button>
+              </h2>
+              <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionAjuda">
+                <div class="accordion-body">
+                  O tempo varia conforme o movimento. Normalmente entre 5-15 minutos. Você pode acompanhar pela sua posição na fila.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Estado do sistema
+    let produtoSelecionado = null;
+    let minhaSenha = null;
+    let minhaPosicao = null;
+    let intervaloMonitoramento = null;
+
+    // Mapeamento de produtos
+    const produtosMap = {
+      'A': { nome: 'Milkshake Tradicional', icone: 'fa-glass-whiskey', preco: 'R$ 12,90' },
+      'B': { nome: 'Milkshake Premium', icone: 'fa-crown', preco: 'R$ 18,90' },
+      'C': { nome: 'Açaí Cremoso', icone: 'fa-bowl-food', preco: 'R$ 15,50' },
+      'D': { nome: 'Picolé Artesanal', icone: 'fa-ice-cream', preco: 'R$ 7,90' },
+      'E': { nome: 'Sobremesa Especial', icone: 'fa-cake-candles', preco: 'R$ 22,90' },
+      'F': { nome: 'Combo Personalizado', icone: 'fa-star', preco: 'A partir de R$ 25,90' }
+    };
+
+    // Inicialização
+    document.addEventListener('DOMContentLoaded', function() {
+      atualizarHora();
+      iniciarMonitoramento();
+      verificarSenhaAtiva();
+    });
+
+    // Função para selecionar produto
+    function selecionarProduto(tipo) {
+      // Remove seleção anterior
+      document.querySelectorAll('.produto-card').forEach(card => {
+        card.classList.remove('selected');
+      });
+      
+      // Adiciona seleção atual
+      document.getElementById(`produto${tipo}`).classList.add('selected');
+      produtoSelecionado = tipo;
+      
+      // Atualiza display
+      document.getElementById('produtoDisplay').textContent = produtosMap[tipo].nome;
+      
+      // Habilita botão de gerar senha
+      document.getElementById('btnGerarSenha').disabled = false;
+      
+      // Play sound
+      playSound('select');
+    }
+
+    // Função para gerar senha do usuário
+    function gerarSenhaUsuario() {
+      if (!produtoSelecionado) {
+        alert('Selecione um produto primeiro!');
+        return;
+      }
+      
+      // Gera número aleatório
+      const numero = Math.floor(Math.random() * 900) + 100;
+      minhaSenha = produtoSelecionado + numero; // Ex: A123
+      
+      // Envia para o painel via localStorage
+      const dadosSenha = {
+        senha: minhaSenha,
+        produto: produtosMap[produtoSelecionado].nome,
+        tipo: produtoSelecionado,
+        timestamp: new Date().toISOString(),
+        origem: 'usuario'
+      };
+      
+      // Envia para o painel
+      localStorage.setItem('milkmoo_nova_senha', JSON.stringify(dadosSenha));
+      
+      // Atualiza interface
+      document.getElementById('senhaDisplay').textContent = minhaSenha;
+      document.getElementById('senhaDisplay').style.color = 'var(--mm-rosa-vibrante)';
+      
+      // Mostra modal de confirmação
+      document.getElementById('modalSenha').textContent = minhaSenha;
+      document.getElementById('modalProduto').textContent = produtosMap[produtoSelecionado].nome;
+      const modal = new bootstrap.Modal(document.getElementById('confirmaModal'));
+      modal.show();
+      
+      // Play sound
+      playSound('success');
+      
+      // Inicia monitoramento da fila
+      if (!intervaloMonitoramento) {
+        iniciarMonitoramento();
+      }
+    }
+
+    // Função para limpar seleção
+    function limparSelecao() {
+      produtoSelecionado = null;
+      minhaSenha = null;
+      
+      // Remove seleção visual
+      document.querySelectorAll('.produto-card').forEach(card => {
+        card.classList.remove('selected');
+      });
+      
+      // Reseta displays
+      document.getElementById('senhaDisplay').textContent = '---';
+      document.getElementById('senhaDisplay').style.color = 'var(--mm-preto)';
+      document.getElementById('produtoDisplay').textContent = 'Nenhum produto selecionado';
+      document.getElementById('btnGerarSenha').disabled = true;
+      document.getElementById('minhaPosicao').textContent = '-';
+      
+      playSound('clear');
+    }
+
+    // Função para monitorar a fila (comunicação com painel)
+    function iniciarMonitoramento() {
+      // Verifica a cada 2 segundos
+      intervaloMonitoramento = setInterval(() => {
+        // Obtém estado do painel
+        const filaPainel = JSON.parse(localStorage.getItem('milkmoo_fila') || '[]');
+        const historicoPainel = JSON.parse(localStorage.getItem('milkmoo_historico') || '[]');
+        const senhaAtualPainel = localStorage.getItem('milkmoo_senha_atual') || '---';
+        
+        // Atualiza contadores
+        document.getElementById('contadorFila').textContent = filaPainel.length;
+        
+        // Atualiza senha atual
+        document.getElementById('senhaAtualDisplay').textContent = senhaAtualPainel;
+        
+        // Atualiza histórico
+        atualizarHistoricoChamadas(historicoPainel.slice(0, 3));
+        
+        // Verifica posição na fila
+        if (minhaSenha) {
+          const minhaPos = filaPainel.indexOf(minhaSenha);
+          if (minhaPos !== -1) {
+            minhaPosicao = minhaPos + 1;
+            document.getElementById('minhaPosicao').textContent = minhaPosicao;
+            
+            // Se for a próxima, destaca
+            if (minhaPos === 0) {
+              document.getElementById('minhaPosicao').style.color = 'var(--verde-sucesso)';
+              document.getElementById('minhaPosicao').classList.add('pulsing');
+            } else {
+              document.getElementById('minhaPosicao').style.color = 'var(--mm-rosa-vibrante)';
+              document.getElementById('minhaPosicao').classList.remove('pulsing');
+            }
+          } else {
+            // Verifica se já foi atendida
+            const jaAtendida = historicoPainel.some(h => h.senha === minhaSenha);
+            if (jaAtendida) {
+              document.getElementById('minhaPosicao').textContent = 'Atendida!';
+              document.getElementById('minhaPosicao').style.color = 'var(--verde-sucesso)';
+            } else {
+              document.getElementById('minhaPosicao').textContent = '-';
+            }
+          }
+        }
+        
+        // Verifica se nossa senha foi chamada
+        if (minhaSenha && senhaAtualPainel === minhaSenha) {
+          notificarMinhaVez();
+        }
+      }, 2000);
+    }
+
+    // Atualizar histórico de chamadas
+    function atualizarHistoricoChamadas(historico) {
+      const container = document.getElementById('historicoChamadas');
+      if (historico.length === 0) {
+        container.innerHTML = '<div class="text-muted">Nenhuma chamada recente</div>';
+        return;
+      }
+      
+      let html = '';
+      historico.forEach(item => {
+        const hora = new Date(item.quando).toLocaleTimeString('pt-BR', { 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        });
+        html += `
+          <div class="d-flex justify-content-between border-bottom pb-1 mb-1">
+            <span class="fw-bold">${item.senha}</span>
+            <span class="text-muted">${hora}</span>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    // Notificar quando for a vez do usuário
+    function notificarMinhaVez() {
+      if (!localStorage.getItem('notificou_' + minhaSenha)) {
+        // Mostra notificação
+        const notificacao = document.createElement('div');
+        notificacao.className = 'position-fixed top-0 start-50 translate-middle-x mt-3 alert alert-success border-3 border-dark';
+        notificacao.style.zIndex = '9999';
+        notificacao.style.borderRadius = '20px';
+        notificacao.innerHTML = `
+          <div class="d-flex align-items-center">
+            <i class="fa-solid fa-bell fa-shake fa-2x me-3"></i>
+            <div>
+              <h5 class="mb-0 fw-bold">SUA VEZ!</h5>
+              <p class="mb-0">Senha ${minhaSenha} - Dirija-se ao balcão</p>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(notificacao);
+        
+        // Remove após 10 segundos
+        setTimeout(() => {
+          notificacao.remove();
+        }, 10000);
+        
+        // Marca como notificado
+        localStorage.setItem('notificou_' + minhaSenha, 'true');
+        
+        // Play sound
+        playSound('bell');
+      }
+    }
+
+    // Verificar se já tem senha ativa
+    function verificarSenhaAtiva() {
+      const senhaSalva = localStorage.getItem('milkmoo_minha_senha');
+      if (senhaSalva) {
+        const dados = JSON.parse(senhaSalva);
+        minhaSenha = dados.senha;
+        produtoSelecionado = dados.tipo;
+        
+        // Restaura seleção
+        if (produtoSelecionado) {
+          selecionarProduto(produtoSelecionado);
+          document.getElementById('senhaDisplay').textContent = minhaSenha;
+          document.getElementById('senhaDisplay').style.color = 'var(--mm-rosa-vibrante)';
+        }
+      }
+    }
+
+    // Funções auxiliares
+    function atualizarHora() {
+      const agora = new Date();
+      const horaFormatada = agora.toLocaleTimeString('pt-BR', {
+        weekday:'long',
+        day:'2-digit',
+        month:'long',
+        year:'numeric',
+        hour:'2-digit',
+        minute:'2-digit',
+        second:'2-digit'
+      });
+      document.getElementById('hora').textContent = horaFormatada;
+      setTimeout(atualizarHora, 1000);
+    }
+
+    function playSound(tipo) {
+      // Implementar sons se desejar
+      console.log(`Play sound: ${tipo}`);
+    }
+
+    function abrirModalAjuda() {
+      const modal = new bootstrap.Modal(document.getElementById('ajudaModal'));
+      modal.show();
+    }
+
+    // Salvar senha localmente
+    window.addEventListener('beforeunload', function() {
+      if (minhaSenha && produtoSelecionado) {
+        localStorage.setItem('milkmoo_minha_senha', JSON.stringify({
+          senha: minhaSenha,
+          tipo: produtoSelecionado,
+          timestamp: new Date().toISOString()
+        }));
+      }
+    });
+  </script>
+</body>
+</html>
